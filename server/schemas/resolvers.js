@@ -26,14 +26,14 @@ module.exports = {
 
     Mutation: {
         // create a user, sign a token, and send it back (to client/src/components/SignUpForm.js)
-        addUser: async (parent, { body }) => {
+        addUser: async (parent, { username, email, password }) => {
             try {
-                const user = await User.create(body);
-
+                const user = await User.create({username, email, password});
                 if (!user) {
                     return { message: 'Error 400, Something is wrong!' };
                 }
                 const token = signToken(user);
+                console.log("THis should be the token",token)
                 return { token, user };
             } catch (error) {
                 console.log(error);
@@ -42,14 +42,14 @@ module.exports = {
         },
         // login a user, sign a token, and send it back (to client/src/components/LoginForm.js)
         // {body} is destructured req.body
-        login: async (parent, { body }) => {
+        login: async (parent, { email, password }) => {
             try {
-                const user = await User.findOne({ $or: [{ username: body.username }, { email: body.email }] });
+                const user = await User.findOne({ email });
                 if (!user) {
                     throw AuthenticationError;
                 };
 
-                const correctPw = await user.isCorrectPassword(body.password);
+                const correctPw = await user.isCorrectPassword(password);
 
                 if (!correctPw) {
                     throw AuthenticationError;
