@@ -4,11 +4,10 @@ const { signToken, AuthenticationError } = require('../utils/auth');
 module.exports = {
     Query: {
         // get a single user by either their id or their username
-        me: async (parent, {  params }, user) => {
+        me: async (parent,  args, { user }) => {
             try {
-                
                 const foundUser = await User.findOne({
-                    $or: [{ _id: user ? user._id : params.id }, { username: params.username }],
+                    $or: [{ _id: user._id}, { username: user.username }],
                 });
 
                 if (!foundUser) {
