@@ -4,8 +4,10 @@ const { signToken, AuthenticationError } = require('../utils/auth');
 module.exports = {
     Query: {
         // get a single user by either their id or their username
-        me: async (parent, { user = null, params }) => {
+        me: async (parent, {  params }, user) => {
             try {
+                
+                console.log( params)
                 const foundUser = await User.findOne({
                     $or: [{ _id: user ? user._id : params.id }, { username: params.username }],
                 });
@@ -55,6 +57,7 @@ module.exports = {
                     throw AuthenticationError;
                 }
                 const token = signToken(user);
+                console.log('THis is token', token)
                 return { token, user };
             } catch (error) {
                 console.log(error);
@@ -63,13 +66,16 @@ module.exports = {
         },
         // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
         // user comes from `req.user` created in the auth middleware function
-        saveBook: async (parent, { user, body }) => {
+        saveBook: async (parent, {bookInput} , context) => {
+            console.log(context?.user)
             try {
                 const updatedUser = await User.findOneAndUpdate(
-                    { _id: user._id },
-                    { $addToSet: { savedBooks: body } },
+                    { _id: context.user._id },
+                    { $addToSet: { savedBooks: bookInput } },
                     { new: true, runValidators: true }
                 );
+                console.log("The user supposedly", updatedUser)
+                
                 return updatedUser;
             } catch (error) {
                 console.log(error);

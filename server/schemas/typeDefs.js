@@ -1,6 +1,6 @@
 module.exports = `
     type Query {
-        me: [User]
+        me: User
     }
 
     type Mutation {
@@ -11,12 +11,12 @@ module.exports = `
     }
 
     input BookInput {
-        authors: [String!]!
-        description: String!
-        title: String!
-        bookId: String!
-        image: String!
-        link: String!
+        authors: [String]
+        description: String
+        title: String
+        bookId: String
+        image: String
+        link: String
       }
 
     type User {
@@ -28,10 +28,10 @@ module.exports = `
     }
 
     type Book {
-        bookId: ID
         authors: [String]
         description: String
         title: String
+        bookId: ID
         image: String
         link: String
     }

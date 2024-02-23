@@ -17,11 +17,14 @@ import { REMOVE_BOOK } from '../utils/mutations';
 const SavedBooks = () => {
   //This is commented because instructions said make a variable called userData but it was already here
   // const [userData, setUserData] = useState({});
+  const { loading, userData} = useQuery(GET_ME);
+  console.log(userData, "this is my userdat")
 
   // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
-
- const { loading, userData} = useQuery(GET_ME);
+  if (userData) {
+    const userDataLength = Object.keys(userData).length;
+    // Perform actions with userData
+  }
  const [deleteBook, {error}] = useMutation(REMOVE_BOOK)
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
@@ -51,7 +54,7 @@ const SavedBooks = () => {
   };
 
   // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (loading) {
     return <h2>LOADING...</h2>;
   }
 
