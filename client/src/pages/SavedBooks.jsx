@@ -17,13 +17,14 @@ import { REMOVE_BOOK } from '../utils/mutations';
 const SavedBooks = () => {
   //This is commented because instructions said make a variable called userData but it was already here
   // const [userData, setUserData] = useState({});
-  const { loading, userData} = useQuery(GET_ME);
-  console.log(userData, "this is my userdat")
+  const { loading, data } = useQuery(GET_ME);
+  
+  const userData = data?.me || {}
+  
 
   // use this to determine if `useEffect()` hook needs to run again
   if (userData) {
     const userDataLength = Object.keys(userData).length;
-    // Perform actions with userData
   }
  const [deleteBook, {error}] = useMutation(REMOVE_BOOK)
 
