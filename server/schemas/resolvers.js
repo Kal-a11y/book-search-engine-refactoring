@@ -7,7 +7,6 @@ module.exports = {
         me: async (parent, {  params }, user) => {
             try {
                 
-                console.log( params)
                 const foundUser = await User.findOne({
                     $or: [{ _id: user ? user._id : params.id }, { username: params.username }],
                 });
@@ -35,7 +34,6 @@ module.exports = {
                     return { message: 'Error 400, Something is wrong!' };
                 }
                 const token = signToken(user);
-                console.log("THis should be the token",token)
                 return { token, user };
             } catch (error) {
                 console.log(error);
@@ -57,7 +55,6 @@ module.exports = {
                     throw AuthenticationError;
                 }
                 const token = signToken(user);
-                console.log('THis is token', token)
                 return { token, user };
             } catch (error) {
                 console.log(error);
@@ -67,14 +64,12 @@ module.exports = {
         // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
         // user comes from `req.user` created in the auth middleware function
         saveBook: async (parent, {bookInput} , context) => {
-            console.log(context?.user)
             try {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: context.user._id },
                     { $addToSet: { savedBooks: bookInput } },
                     { new: true, runValidators: true }
                 );
-                console.log("The user supposedly", updatedUser)
                 
                 return updatedUser;
             } catch (error) {
