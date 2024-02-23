@@ -76,11 +76,12 @@ module.exports = {
                 return { message: 'Error 400', error };
             }
         },
-        removeBook: async (parent, { user, params }) => {
+        removeBook: async (parent, {bookId}, {user}) => {
+            console.log(bookId)
             try {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: user._id },
-                    { $pull: { savedBooks: { bookId: params.bookId } } },
+                    { $pull: { savedBooks: { bookId: bookId } } },
                     { new: true }
                 );
                 if (!updatedUser) {
