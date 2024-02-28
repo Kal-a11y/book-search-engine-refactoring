@@ -19,7 +19,7 @@ const SavedBooks = () => {
   // const [userData, setUserData] = useState({});
   const { loading, data } = useQuery(GET_ME);
   
-  const userData = data?.me || {}
+  let userData = data?.me || {}
   
 
   // use this to determine if `useEffect()` hook needs to run again
@@ -40,12 +40,13 @@ const SavedBooks = () => {
         variables: {bookId}
       });
 
-      if (!data.ok) {
+      if (!data) {
         throw new Error('something went wrong!');
       }
+      console.log('After remove', data.removeBook)
 
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
+      const updatedUser = data.removeBook || {};
+      userData = updatedUser;
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
@@ -72,9 +73,9 @@ const SavedBooks = () => {
             : 'You have no saved books!'}
         </h2>
         <Row>
-          {userData.savedBooks.map((book) => {
+          {userData.savedBooks.map((book, index) => {
             return (
-              <Col md="4">
+              <Col md="4" key={index}>
                 <Card key={book.bookId} border='dark'>
                   {book.image ? <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' /> : null}
                   <Card.Body>
