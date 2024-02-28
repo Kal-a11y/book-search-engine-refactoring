@@ -1,14 +1,13 @@
 const { User } = require('../models');
-const { signToken } = require('../utils/auth');
 const { signToken, AuthenticationError } = require('../utils/auth');
 
 module.exports = {
     Query: {
         // get a single user by either their id or their username
-        me: async (parent, { user = null, params }) => {
+        me: async (parent,  args, { user }) => {
             try {
                 const foundUser = await User.findOne({
-                    $or: [{ _id: user ? user._id : params.id }, { username: params.username }],
+                    $or: [{ _id: user._id}, { username: user.username }],
                 });
 
                 if (!foundUser) {
@@ -27,10 +26,9 @@ module.exports = {
 
     Mutation: {
         // create a user, sign a token, and send it back (to client/src/components/SignUpForm.js)
-        addUser: async (parent, { body }) => {
+        addUser: async (parent, { username, email, password }) => {
             try {
-                const user = await User.create(body);
-
+                const user = await User.create({username, email, password});
                 if (!user) {
                     return { message: 'Error 400, Something is wrong!' };
                 }
@@ -43,14 +41,14 @@ module.exports = {
         },
         // login a user, sign a token, and send it back (to client/src/components/LoginForm.js)
         // {body} is destructured req.body
-        login: async (parent, { body }) => {
+        login: async (parent, { email, password }) => {
             try {
-                const user = await User.findOne({ $or: [{ username: body.username }, { email: body.email }] });
+                const user = await User.findOne({ email });
                 if (!user) {
                     throw AuthenticationError;
                 };
 
-                const correctPw = await user.isCorrectPassword(body.password);
+                const correctPw = await user.isCorrectPassword(password);
 
                 if (!correctPw) {
                     throw AuthenticationError;
@@ -64,24 +62,26 @@ module.exports = {
         },
         // save a book to a user's `savedBooks` field by adding it to the set (to prevent duplicates)
         // user comes from `req.user` created in the auth middleware function
-        saveBook: async (parent, { user, body }) => {
+        saveBook: async (parent, {bookInput} , context) => {
             try {
                 const updatedUser = await User.findOneAndUpdate(
-                    { _id: user._id },
-                    { $addToSet: { savedBooks: body } },
+                    { _id: context.user._id },
+                    { $addToSet: { savedBooks: bookInput } },
                     { new: true, runValidators: true }
                 );
+                
                 return updatedUser;
             } catch (error) {
                 console.log(error);
                 return { message: 'Error 400', error };
             }
         },
-        removeBook: async (parent, { user, params }) => {
+        removeBook: async (parent, {bookId}, {user}) => {
+            console.log(bookId)
             try {
                 const updatedUser = await User.findOneAndUpdate(
                     { _id: user._id },
-                    { $pull: { savedBooks: { bookId: params.bookId } } },
+                    { $pull: { savedBooks: { bookId: bookId } } },
                     { new: true }
                 );
                 if (!updatedUser) {
